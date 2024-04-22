@@ -76,7 +76,26 @@ module.exports.updateListing = async (req, res) => {
   //   throw new ExpressError(400, "Send valid data for listing");
   // }
   let { id } = req.params;
-  let listing = await Listing.findByIdAndUpdate(id, { ...req.body.listing }); //...req.body.listing: it basically exracts the key and assign the updated values to the keys
+  let listing = await Listing.findById(id);
+
+  if (!listing) {
+    req.flash("error", "Listing you requested for does not exist");
+    return res.redirect("/listings");
+  }
+
+  if (req.body.listing.location !== listing.location) {
+    // Geocode the new location
+    let response = await geocodingClient
+      .forwardGeocode({
+        query: req.body.listing.location,
+        limit: 1,
+      })
+      .send();
+
+    // Update the geometry with the new coordinates
+    req.body.listing.geometry = response.body.features[0].geometry;
+  }
+  listing = await Listing.findByIdAndUpdate(id, { ...req.body.listing }); //...req.body.listing: it basically exracts the key and assign the updated values to the keys
 
   if (typeof req.file != "undefined") {
     let url = req.file.path;
