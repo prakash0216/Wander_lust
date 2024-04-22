@@ -135,16 +135,11 @@
           ></p>
           <p class="card-text"><%=review.comment%></p>
         </div>
-        <form
-          class="mb-3 mt-2"
-          method="POST"
-          action="/listings/<%=listing._id%>/reviews/<%=review._id%>?_method=DELETE"
-        >
-        <% if (listing.owner.equals(review.author)) { %>
-          <button class="btn btn-sm btn-dark">Edit</button>
+        <% if (currUser && currUser._id.equals(review.author._id)){ %>
+          <form class="mb-3 mt-2" method="POST" action="/listings/<%= listing._id %>/reviews/<%= review._id %>?_method=DELETE">
+            <button class="btn btn-sm btn-dark">Delete</button>
+          </form>
         <% } %>
-        
-        </form>
       </div>
       </div>
       <%}%>
